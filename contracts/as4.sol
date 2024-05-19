@@ -50,21 +50,21 @@ contract DegenToken is ERC20, Ownable {
         _burn(msg.sender, totalCost);
     }
 
-    function redeemElixir(uint256 amount) external {
-        require(elixirBalance[msg.sender] >= amount, "Insufficient elixir balance");
-        elixirBalance[msg.sender] -= amount;
-        _mint(msg.sender, amount * ELIXIR_PRICE);
-    }
+    function redeem(uint256 elixirAmount, uint256 coinsAmount, uint256 gemsAmount) external {
+        // Check if the sender has enough balances for redemption
+        require(elixirBalance[msg.sender] >= elixirAmount, "Insufficient elixir balance");
+        require(coinsBalance[msg.sender] >= coinsAmount, "Insufficient coins balance");
+        require(gemsBalance[msg.sender] >= gemsAmount, "Insufficient gems balance");
+        
+        // Update balances
+        elixirBalance[msg.sender] -= elixirAmount;
+        coinsBalance[msg.sender] -= coinsAmount;
+        gemsBalance[msg.sender] -= gemsAmount;
 
-    function redeemCoins(uint256 amount) external {
-        require(coinsBalance[msg.sender] >= amount, "Insufficient coins balance");
-        coinsBalance[msg.sender] -= amount;
-        _mint(msg.sender, amount * COINS_PRICE);
-    }
+        // Calculate the total amount of Degen Tokens to mint for redemption
+        uint256 totalTokensToMint = (elixirAmount * ELIXIR_PRICE) + (coinsAmount * COINS_PRICE) + (gemsAmount * GEM_PRICE);
 
-    function redeemGems(uint256 amount) external {
-        require(gemsBalance[msg.sender] >= amount, "Insufficient gems balance");
-        gemsBalance[msg.sender] -= amount;
-        _mint(msg.sender, amount * GEM_PRICE);
+        // Mint the tokens to the sender
+        _mint(msg.sender, totalTokensToMint);
     }
 }
